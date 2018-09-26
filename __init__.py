@@ -28,12 +28,15 @@ SOFTWARE.
 import soundcloud
 from adapt.intent import IntentBuilder
 from mycroft.skills.core import MycroftSkill, intent_handler
+from mycroft.util.log import getLogger
 
 from soundcloudplayer import SoundCloudPlayer
 
-
 # Each skill is contained within its own class, which inherits base methods
 # from the MycroftSkill class.  You extend this class as shown below.
+
+LOGGER = getLogger(__name__)
+
 
 class SoundcloudSkill(MycroftSkill):
 
@@ -58,17 +61,21 @@ class SoundcloudSkill(MycroftSkill):
     #   'Greetings planet earth'
     @intent_handler(IntentBuilder("").require("Play").require("Soundcloud"))
     def handle_soundcloud_intent(self, message):
-        # In this case, respond by simply speaking a canned response.
-        # Mycroft will randomly speak one of the lines from the file
-        #    dialogs/en-us/hello.world.dialog
-        utterance = message.data['utterance']
-        to_word = ' ' + self.translate('To')
-        on_word = ' ' + self.translate('On')
-        query = to_word.join(utterance.split(to_word)[1:])
-        query = on_word.join(query.split(on_word)[1:])
-        trackName = query.strip()
-        message.data['track'] = trackName
-        self.play_song(message)
+        try:
+            # In this case, respond by simply speaking a canned response.
+            # Mycroft will randomly speak one of the lines from the file
+            #    dialogs/en-us/hello.world.dialog
+            utterance = message.data['utterance']
+            to_word = ' ' + self.translate('To')
+            on_word = ' ' + self.translate('On')
+            query = to_word.join(utterance.split(to_word)[1:])
+            query = on_word.join(query.split(on_word)[1:])
+            trackName = query.strip()
+            LOGGER.info("Finding some tracks for " + trackName)
+            message.data['track'] = trackName
+            self.play_song(message)
+        except Exception as e:
+            LOGGER.error("Error: {0}".format(e))
 
     @intent_handler(IntentBuilder("").require("Stop").require("Soundcloud"))
     def handle_soundcloud_stop_intent(self, message):
@@ -106,6 +113,7 @@ class SoundcloudSkill(MycroftSkill):
         tracks = client.get('/tracks', q=song)
         urls = []
         name = tracks[0].title
+        LOGGER.info("First track to be played is " + name)
         for track in tracks:
             urls.append(client.get(tracks[0].stream_url, allow_redirects=False).url)
 
