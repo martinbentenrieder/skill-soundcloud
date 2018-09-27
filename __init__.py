@@ -88,10 +88,13 @@ class SoundcloudSkill(MycroftSkill):
             # Mycroft will randomly speak one of the lines from the file
             #    dialogs/en-us/hello.world.dialog
             utterance = message.data['utterance']
+            LOGGER.info("utterance is " + utterance)
             to_word = ' ' + self.translate('To')
             on_word = ' ' + self.translate('On')
             query = to_word.join(utterance.split(to_word)[1:])
+            LOGGER.info("query replace 1 is " + query)
             query = on_word.join(query.split(on_word)[1:])
+            LOGGER.info("query replace 2 is " + query)
             trackName = query.strip()
             LOGGER.info("Finding some tracks for " + trackName)
             message.data['track'] = trackName
