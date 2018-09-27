@@ -26,11 +26,33 @@ SOFTWARE.
 ------------------------------------------------------------------------------
 """
 import soundcloud
+import vlc
 from adapt.intent import IntentBuilder
 from mycroft.skills.core import MycroftSkill, intent_handler
 from mycroft.util.log import getLogger
 
-from soundcloudplayer import SoundCloudPlayer
+
+class SoundCloudPlayer(object):
+    def play(self, urls):
+        instanceParameters = [
+            '--quiet',
+            '--ignore-config',
+            '--sout-keep',
+            '--sout-all',
+            '--vout=caca'
+        ]
+        self.instance = vlc.Instance(instanceParameters)
+        self.medialist = self.instance.media_list_new()
+        # self.medialist.add_media(self.instance.media_new(url))
+        for item in urls:
+            self.medialist.add_media(self.instance.media_new(item))
+        self.player = self.instance.media_list_player_new()
+        self.player.set_media_list(self.medialist)
+        self.player.play()
+
+    def stop(self):
+        self.player.stop()
+
 
 # Each skill is contained within its own class, which inherits base methods
 # from the MycroftSkill class.  You extend this class as shown below.
