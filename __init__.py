@@ -89,12 +89,18 @@ class SoundcloudSkill(MycroftSkill):
             #    dialogs/en-us/hello.world.dialog
             utterance = message.data['utterance']
             LOGGER.info("utterance is " + utterance)
+            play = message.data.get("Play")
+            soundcloud = message.data.get("Soundcloud")
             to_word = ' ' + self.translate('To')
             on_word = ' ' + self.translate('On')
-            query = to_word.join(utterance.split(to_word)[1:])
-            LOGGER.info("query replace 1 is " + query)
-            query = on_word.join(query.split(on_word)[1:])
-            LOGGER.info("query replace 2 is " + query)
+            query = utterance.replace(play, "")
+            query = query.replace(play.lower(), "")
+            query = query.replace(soundcloud, "")
+            query = query.replace(soundcloud.lower(), "")
+            query = query.replace(to_word, "")
+            query = query.replace(to_word.lower(), "")
+            query = query.replace(on_word, "")
+            query = query.replace(on_word.lower(), "")
             trackName = query.strip()
             LOGGER.info("Finding some tracks for " + trackName)
             message.data['track'] = trackName
